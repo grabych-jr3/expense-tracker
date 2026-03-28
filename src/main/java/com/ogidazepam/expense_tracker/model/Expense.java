@@ -2,6 +2,7 @@ package com.ogidazepam.expense_tracker.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
 
@@ -14,17 +15,20 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "price can't be empty")
+    @NotNull(message = "price can't be null")
     @Column(name = "price")
-    private double price;
+    private Double price;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category")
+    @Column(name = "category", nullable = false)
     private Category category;
 
-    @NotBlank(message = "Date can't be empty")
-    @Column(name = "date")
-    private Instant date;
+    @NotNull(message = "Created at can't be empty")
+    @Column(name = "created_At")
+    private Instant createdAt;
+
+    @NotNull(message = "Updated at can't be empty")
+    @Column(name = "updated_At")
+    private Instant updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "person_id")
@@ -33,10 +37,11 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(double price, Category category, Instant date) {
+    public Expense(Double price, Category category, Instant createdAt, Instant updatedAt) {
         this.price = price;
         this.category = category;
-        this.date = date;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public long getId() {
@@ -47,11 +52,11 @@ public class Expense {
         this.id = id;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -63,12 +68,20 @@ public class Expense {
         this.category = category;
     }
 
-    public Instant getDate() {
-        return date;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDate(Instant date) {
-        this.date = date;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Person getOwner() {
@@ -85,7 +98,8 @@ public class Expense {
                 "id=" + id +
                 ", price=" + price +
                 ", category=" + category +
-                ", date=" + date +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 }
