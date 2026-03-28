@@ -1,12 +1,13 @@
 package com.ogidazepam.expense_tracker.controller;
 
-import com.ogidazepam.expense_tracker.dto.ExpenseCreatingDTO;
-import com.ogidazepam.expense_tracker.dto.ExpenseUpdatingDTO;
+import com.ogidazepam.expense_tracker.dto.expense.ExpenseCreatingDTO;
+import com.ogidazepam.expense_tracker.dto.expense.ExpenseUpdatingDTO;
 import com.ogidazepam.expense_tracker.service.ExpenseService;
-import com.ogidazepam.expense_tracker.util.exceptions.ExpenseNotCreatedException;
+import com.ogidazepam.expense_tracker.util.exceptions.EntityNotCreatedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +27,15 @@ public class ExpenseController {
 
     @PostMapping
     public void saveNewExpense(@RequestBody @Valid ExpenseCreatingDTO dto,
-                                         BindingResult bindingResult){
+                               BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails){
         getAllFieldErrors(bindingResult);
         expenseService.saveExpense(dto);
     }
 
     @PatchMapping
     public void updateExpense(@RequestBody @Valid ExpenseUpdatingDTO dto,
-                              BindingResult bindingResult){
+                              BindingResult bindingResult,
+                              @AuthenticationPrincipal UserDetails userDetails){
         getAllFieldErrors(bindingResult);
         expenseService.updateExpense(dto);
     }
@@ -53,7 +55,7 @@ public class ExpenseController {
                         .append(" - ").append(error.getDefaultMessage())
                         .append(";");
             }
-            throw new ExpenseNotCreatedException(errorMsgs.toString());
+            throw new EntityNotCreatedException(errorMsgs.toString());
         }
     }
 }

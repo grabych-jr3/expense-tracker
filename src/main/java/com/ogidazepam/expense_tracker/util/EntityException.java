@@ -4,15 +4,12 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
-public class ExpenseException {
+public class EntityException {
     private HttpStatus httpStatus;
     private String message;
     private Instant timestamp;
 
-    public ExpenseException() {
-    }
-
-    public ExpenseException(HttpStatus httpStatus, String message, Instant timestamp) {
+    public EntityException(HttpStatus httpStatus, String message, Instant timestamp) {
         this.httpStatus = httpStatus;
         this.message = message;
         this.timestamp = timestamp;
