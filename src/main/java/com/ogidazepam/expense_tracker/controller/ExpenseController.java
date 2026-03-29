@@ -2,16 +2,23 @@ package com.ogidazepam.expense_tracker.controller;
 
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseCreatingDTO;
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseUpdatingDTO;
+import com.ogidazepam.expense_tracker.dto.expense.ExpenseViewDTO;
+import com.ogidazepam.expense_tracker.model.Expense;
 import com.ogidazepam.expense_tracker.service.ExpenseService;
 import com.ogidazepam.expense_tracker.util.exceptions.EntityNotCreatedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -25,19 +32,29 @@ public class ExpenseController {
         this.expenseService = expenseService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<ExpenseViewDTO>> getAllExpenses(
+        @RequestParam(required = false) String filter,
+        @RequestParam(required = false) String startDate,
+        @RequestParam(required = false) String endDate
+    ){
+        List<ExpenseViewDTO> expenses = expenseService.findExpenses(filter, startDate, endDate);
+        return new ResponseEntity<>(expenses, HttpStatus.OK);
+    }
+
     @PostMapping
     public void saveNewExpense(@RequestBody @Valid ExpenseCreatingDTO dto,
-                               BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails){
+                               BindingResult bindingResult){
         getAllFieldErrors(bindingResult);
         expenseService.saveExpense(dto);
     }
 
-    @PatchMapping
+    @PatchMapping("/{id}")
     public void updateExpense(@RequestBody @Valid ExpenseUpdatingDTO dto,
                               BindingResult bindingResult,
-                              @AuthenticationPrincipal UserDetails userDetails){
+                              @PathVariable long id){
         getAllFieldErrors(bindingResult);
-        expenseService.updateExpense(dto);
+        expenseService.updateExpense(id, dto);
     }
 
     @DeleteMapping("/{id}")

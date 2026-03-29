@@ -3,6 +3,7 @@ package com.ogidazepam.expense_tracker.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.time.Instant;
 
@@ -16,6 +17,7 @@ public class Expense {
     private long id;
 
     @NotNull(message = "price can't be null")
+    @Positive(message = "price must be greater than 0")
     @Column(name = "price")
     private Double price;
 

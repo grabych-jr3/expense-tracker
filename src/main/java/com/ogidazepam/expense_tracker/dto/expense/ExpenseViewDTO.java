@@ -1,21 +1,29 @@
 package com.ogidazepam.expense_tracker.dto.expense;
 
 import com.ogidazepam.expense_tracker.model.Category;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-public class ExpenseUpdatingDTO {
-    @NotNull(message = "Price can't be null")
-    @Positive(message = "Price must be positive")
+import java.time.Instant;
+
+public class ExpenseViewDTO {
+    @NotNull(message = "price can't be null")
+    @Positive(message = "price must be greater than 0")
     private Double price;
+
     private Category category;
 
-    public ExpenseUpdatingDTO() {
-    }
+    @NotNull(message = "Created at can't be empty")
+    private Instant createdAt;
 
-    public ExpenseUpdatingDTO(Double price, Category category) {
+    public ExpenseViewDTO(Double price, Category category, Instant createdAt) {
         this.price = price;
         this.category = category;
+        this.createdAt = createdAt;
+    }
+
+    public ExpenseViewDTO() {
     }
 
     public Double getPrice() {
@@ -34,11 +42,11 @@ public class ExpenseUpdatingDTO {
         this.category = category;
     }
 
-    @Override
-    public String toString() {
-        return "ExpenseUpdatingDTO{" +
-                ", price=" + price +
-                ", category='" + category + '\'' +
-                '}';
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 }

@@ -2,6 +2,7 @@ package com.ogidazepam.expense_tracker.service;
 
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseCreatingDTO;
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseUpdatingDTO;
+import com.ogidazepam.expense_tracker.dto.expense.ExpenseViewDTO;
 import com.ogidazepam.expense_tracker.model.Category;
 import com.ogidazepam.expense_tracker.model.Expense;
 import com.ogidazepam.expense_tracker.model.Person;
@@ -16,8 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
 
-import java.time.Instant;
+import java.time.*;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
@@ -51,11 +55,11 @@ public class ExpenseService {
         expenseRepository.save(enrichExpense(expense));
     }
 
-    @PreAuthorize("@expenseSecurity.isOwner(#dto.id)")
+    @PreAuthorize("@expenseSecurity.isOwner(#id)")
     @Transactional
-    public void updateExpense(ExpenseUpdatingDTO dto) {
+    public void updateExpense(long id, ExpenseUpdatingDTO dto) {
         Expense expense = expenseRepository
-                .findById(dto.getId())
+                .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
         expense.setPrice(dto.getPrice());
         expense.setCategory(dto.getCategory());
@@ -68,8 +72,41 @@ public class ExpenseService {
         expenseRepository.deleteById(id);
     }
 
+    public List<ExpenseViewDTO> findExpenses(String filter, String startDate, String endDate){
+        Person person = currentUserService.getCurrentPerson();
+
+        Instant start;
+        Instant end = Instant.now();
+
+        if(startDate != null && endDate != null){
+            start = LocalDate.parse(startDate).atStartOfDay(ZoneOffset.UTC).toInstant();
+            end = LocalDate.parse(endDate).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
+        }else if(filter != null){
+            int days = switch (filter){
+                case "past_week" -> 7;
+                case "past_month" -> 30;
+                case "past_three_month" -> 90;
+                default -> 30;
+            };
+            start = end.minus(Duration.ofDays(days));
+        }else{
+            start = Instant.EPOCH;
+        }
+
+        List<Expense> expenses = expenseRepository.findAllByOwnerIdAndCreatedAtBetweenOrderByCreatedAt(
+                person.getId(),
+                start,
+                end
+        );
+        return convertToExpenseViewDTO(expenses);
+    }
+
     private Expense convertToExpense(Object dto){
         return modelMapper.map(dto, Expense.class);
+    }
+
+    private List<ExpenseViewDTO> convertToExpenseViewDTO(List<Expense> expenses){
+        return expenses.stream().map(expense -> modelMapper.map(expense, ExpenseViewDTO.class)).toList();
     }
 
     private Expense enrichExpense(Expense expense){
