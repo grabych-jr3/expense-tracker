@@ -5,13 +5,32 @@ import com.ogidazepam.expense_tracker.util.exceptions.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionHandling {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<EntityException> handleValidationExceptions(MethodArgumentNotValidException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        StringBuilder errors = new StringBuilder("Validation failed: ");
+        e.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.append("[").append(fieldName).append(": ").append(errorMessage).append("] ");
+        });
+
+        EntityException entityException = formException(status, errors.toString());
+        return new ResponseEntity<>(entityException, status);
+    }
 
     @ExceptionHandler
     public ResponseEntity<EntityException> entityNotFoundException(EntityNotFoundException e){

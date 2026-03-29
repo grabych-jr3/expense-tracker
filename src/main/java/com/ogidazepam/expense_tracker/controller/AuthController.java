@@ -37,18 +37,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public void registerUser(@RequestBody @Valid PersonRegisterDTO dto, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            getAllFieldErrors(bindingResult);
-        }
+    public void registerUser(@RequestBody @Valid PersonRegisterDTO dto){
         personService.saveUser(dto);
     }
 
     @PostMapping("/login")
-    public String authUser(@RequestBody @Valid PersonLoginDTO dto, BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            getAllFieldErrors(bindingResult);
-        }
+    public String authUser(@RequestBody @Valid PersonLoginDTO dto){
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -61,20 +55,6 @@ public class AuthController {
             return jwtService.generateToken((UserDetails) authentication.getPrincipal());
         }else{
             throw new UsernameNotFoundException("Not today, bro");
-        }
-    }
-
-    private void getAllFieldErrors(BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            StringBuilder errorMsgs = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-
-            for(FieldError error : errors){
-                errorMsgs.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new EntityNotCreatedException(errorMsgs.toString());
         }
     }
 }

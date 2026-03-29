@@ -7,21 +7,17 @@ import com.ogidazepam.expense_tracker.model.Category;
 import com.ogidazepam.expense_tracker.model.Expense;
 import com.ogidazepam.expense_tracker.model.Person;
 import com.ogidazepam.expense_tracker.repository.ExpenseRepository;
-import com.ogidazepam.expense_tracker.repository.PersonRepository;
 import com.ogidazepam.expense_tracker.util.security.CurrentUserService;
 import com.ogidazepam.expense_tracker.util.exceptions.EntityNotCreatedException;
 import com.ogidazepam.expense_tracker.util.exceptions.EntityNotFoundException;
-import com.ogidazepam.expense_tracker.util.security.ExpenseSecurity;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.type.TypeReference;
 
 import java.time.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
@@ -101,12 +97,25 @@ public class ExpenseService {
         return convertToExpenseViewDTO(expenses);
     }
 
+    @PreAuthorize("@expenseSecurity.isOwner(#id)")
+    public ExpenseViewDTO findExpense(long id){
+        Expense expense = expenseRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity with id " + id + " not found"));
+
+        return convertToExpenseViewDTO(expense);
+    }
+
     private Expense convertToExpense(Object dto){
         return modelMapper.map(dto, Expense.class);
     }
 
     private List<ExpenseViewDTO> convertToExpenseViewDTO(List<Expense> expenses){
         return expenses.stream().map(expense -> modelMapper.map(expense, ExpenseViewDTO.class)).toList();
+    }
+
+    private ExpenseViewDTO convertToExpenseViewDTO(Expense expense){
+        return modelMapper.map(expense, ExpenseViewDTO.class);
     }
 
     private Expense enrichExpense(Expense expense){

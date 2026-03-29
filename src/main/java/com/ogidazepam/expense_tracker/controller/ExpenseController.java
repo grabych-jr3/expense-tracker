@@ -42,18 +42,20 @@ public class ExpenseController {
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ExpenseViewDTO> getExpense(@PathVariable long id){
+        ExpenseViewDTO expenseViewDTO = expenseService.findExpense(id);
+        return new ResponseEntity<>(expenseViewDTO, HttpStatus.OK);
+    }
+
     @PostMapping
-    public void saveNewExpense(@RequestBody @Valid ExpenseCreatingDTO dto,
-                               BindingResult bindingResult){
-        getAllFieldErrors(bindingResult);
+    public void saveNewExpense(@RequestBody @Valid ExpenseCreatingDTO dto){
         expenseService.saveExpense(dto);
     }
 
     @PatchMapping("/{id}")
     public void updateExpense(@RequestBody @Valid ExpenseUpdatingDTO dto,
-                              BindingResult bindingResult,
                               @PathVariable long id){
-        getAllFieldErrors(bindingResult);
         expenseService.updateExpense(id, dto);
     }
 
@@ -62,17 +64,4 @@ public class ExpenseController {
         expenseService.deleteExpense(id);
     }
 
-    private void getAllFieldErrors(BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            StringBuilder errorMsgs = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-
-            for(FieldError error : errors){
-                errorMsgs.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new EntityNotCreatedException(errorMsgs.toString());
-        }
-    }
 }
