@@ -3,6 +3,7 @@ package com.ogidazepam.expense_tracker.config;
 import com.ogidazepam.expense_tracker.filter.JwtAuthenticationFilter;
 import com.ogidazepam.expense_tracker.model.UserRole;
 import com.ogidazepam.expense_tracker.service.security.MyUserDetailsService;
+import com.ogidazepam.expense_tracker.util.CustomAccessDeniedHanler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +27,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringConfig {
 
     private final MyUserDetailsService userDetailsService;
+    private final CustomAccessDeniedHanler accessDeniedHanler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
-    public SpringConfig(MyUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SpringConfig(MyUserDetailsService userDetailsService, CustomAccessDeniedHanler accessDeniedHanler, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.accessDeniedHanler = accessDeniedHanler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -40,12 +43,15 @@ public class SpringConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/user/**").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name())
+                        .requestMatchers("/api/expense/**").authenticated()
+                        .requestMatchers("/api/admin/**").hasRole(UserRole.ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHanler))
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.ogidazepam.expense_tracker.dto.expense;
 
+import com.ogidazepam.expense_tracker.model.Category;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -8,13 +9,12 @@ public class ExpenseCreatingDTO{
     @NotNull(message = "Price can't be null")
     @Positive(message = "Price must be positive")
     private Double price;
-
-    private String category;
+    private Category category;
 
     public ExpenseCreatingDTO() {
     }
 
-    public ExpenseCreatingDTO(Double price, String category) {
+    public ExpenseCreatingDTO(Double price, Category category) {
         this.price = price;
         this.category = category;
     }
@@ -27,18 +27,18 @@ public class ExpenseCreatingDTO{
         this.price = price;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
     @Override
     public String toString() {
-        return "ExpenseCreatingDTO{" +
-                "price=" + price +
+        return "ExpenseUpdatingDTO{" +
+                ", price=" + price +
                 ", category='" + category + '\'' +
                 '}';
     }

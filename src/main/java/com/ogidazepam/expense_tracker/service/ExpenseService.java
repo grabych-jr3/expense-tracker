@@ -3,12 +3,10 @@ package com.ogidazepam.expense_tracker.service;
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseCreatingDTO;
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseUpdatingDTO;
 import com.ogidazepam.expense_tracker.dto.expense.ExpenseViewDTO;
-import com.ogidazepam.expense_tracker.model.Category;
 import com.ogidazepam.expense_tracker.model.Expense;
 import com.ogidazepam.expense_tracker.model.Person;
 import com.ogidazepam.expense_tracker.repository.ExpenseRepository;
-import com.ogidazepam.expense_tracker.util.security.CurrentUserService;
-import com.ogidazepam.expense_tracker.util.exceptions.EntityNotCreatedException;
+import com.ogidazepam.expense_tracker.service.security.CurrentUserService;
 import com.ogidazepam.expense_tracker.util.exceptions.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +35,6 @@ public class ExpenseService {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Transactional
     public void saveExpense(ExpenseCreatingDTO dto){
-        try{
-            Category.valueOf(dto.getCategory());
-        }catch(IllegalArgumentException e){
-            throw new EntityNotCreatedException("Category " + dto.getCategory() + " doesn't exist");
-        }
-
         Person person = currentUserService.getCurrentPerson();
         Expense expense = convertToExpense(dto);
         expense.setOwner(person);
@@ -51,7 +43,7 @@ public class ExpenseService {
         expenseRepository.save(enrichExpense(expense));
     }
 
-    @PreAuthorize("@expenseSecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwner(#id)")
     @Transactional
     public void updateExpense(long id, ExpenseUpdatingDTO dto) {
         Expense expense = expenseRepository
@@ -62,7 +54,7 @@ public class ExpenseService {
         expense.setUpdatedAt(Instant.now());
     }
 
-    @PreAuthorize("@expenseSecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwner(#id)")
     @Transactional
     public void deleteExpense(long id){
         expenseRepository.deleteById(id);
@@ -97,7 +89,7 @@ public class ExpenseService {
         return convertToExpenseViewDTO(expenses);
     }
 
-    @PreAuthorize("@expenseSecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwner(#id)")
     public ExpenseViewDTO findExpense(long id){
         Expense expense = expenseRepository
                 .findById(id)

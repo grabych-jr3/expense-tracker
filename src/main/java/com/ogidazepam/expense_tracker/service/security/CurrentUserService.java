@@ -1,4 +1,4 @@
-package com.ogidazepam.expense_tracker.util.security;
+package com.ogidazepam.expense_tracker.service.security;
 
 import com.ogidazepam.expense_tracker.model.Person;
 import com.ogidazepam.expense_tracker.repository.PersonRepository;
