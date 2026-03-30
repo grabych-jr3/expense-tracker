@@ -33,7 +33,7 @@ public class EntitySecurity {
         return currentUserService.getCurrentPerson().getId() == expense.getOwner().getId();
     }
 
-    public boolean isAdmin(long id){
+    public boolean isTargetUserAdmin(long id){
         Person person = personRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
