@@ -39,7 +39,7 @@ public class AdminService {
         return convertToPersonViewDtoList(people);
     }
 
-    @PreAuthorize("!@entitySecurity.isAdmin(#id) or entitySecurity.isTheSameUser(#id)")
+    @PreAuthorize("!@entitySecurity.isTargetUserAdmin(#id) or entitySecurity.isTheSameUser(#id)")
     public PersonViewDTO findById(long id){
         Person person = personRepository
                 .findById(id)
@@ -47,7 +47,7 @@ public class AdminService {
         return convertToPersonViewDto(person);
     }
 
-    @PreAuthorize("!@entitySecurity.isAdmin(#id)")
+    @PreAuthorize("!@entitySecurity.isTargetUserAdmin(#id)")
     @Transactional
     public void updateUser(long id, PersonUpdateDTO dto){
         Person personToBeUpdated = personRepository
@@ -59,7 +59,7 @@ public class AdminService {
         personToBeUpdated.setUpdatedAt(Instant.now());
     }
 
-    @PreAuthorize("!@entitySecurity.isAdmin(#id)")
+    @PreAuthorize("!@entitySecurity.isTargetUserAdmin(#id)")
     @Transactional
     public void deleteUser(long id){
         Person personToBeDeleted = personRepository
@@ -69,7 +69,7 @@ public class AdminService {
         personRepository.delete(personToBeDeleted);
     }
 
-    @PreAuthorize("!@entitySecurity.isAdmin(#id) or @entitySecurity.isTheSameUser(#id)")
+    @PreAuthorize("!@entitySecurity.isTargetUserAdmin(#id) or @entitySecurity.isTheSameUser(#id)")
     public List<ExpenseViewDTO> findAllExpensesByUserId(long id){
         Person person = personRepository
                 .findById(id)
