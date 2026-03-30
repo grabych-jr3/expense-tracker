@@ -3,8 +3,10 @@ package com.ogidazepam.expense_tracker.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,11 +30,11 @@ public class Person {
     @Column(name = "role")
     private UserRole role;
 
-    @NotEmpty(message = "Created at can't be empty")
+    @NotNull(message = "Created at can't be empty")
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @NotEmpty(message = "Updated at can't be empty")
+    @NotNull(message = "Updated at can't be empty")
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -40,6 +42,7 @@ public class Person {
     private List<Expense> expenses;
 
     public Person() {
+        this.expenses = new ArrayList<>();
     }
 
     public Person(String username, String password, UserRole role, Instant createdAt, Instant updatedAt) {
@@ -48,6 +51,8 @@ public class Person {
         this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+
+        this.expenses = new ArrayList<>();
     }
 
     public long getId() {

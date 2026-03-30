@@ -1,57 +1,33 @@
-package com.ogidazepam.expense_tracker.model;
+package com.ogidazepam.expense_tracker.dto.forAdmin;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import com.ogidazepam.expense_tracker.model.Category;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.time.Instant;
 
-@Entity
-@Table(name = "Expense")
-public class Expense {
-
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class ExpenseViewDTO {
 
     @NotNull(message = "price can't be null")
     @Positive(message = "price must be greater than 0")
-    @Column(name = "price")
     private Double price;
 
-    @Column(name = "category", nullable = false)
     private Category category;
 
     @NotNull(message = "Created at can't be empty")
-    @Column(name = "created_At")
     private Instant createdAt;
 
     @NotNull(message = "Updated at can't be empty")
-    @Column(name = "updated_At")
     private Instant updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "person_id")
-    private Person owner;
-
-    public Expense() {
-    }
-
-    public Expense(Double price, Category category, Instant createdAt, Instant updatedAt) {
+    public ExpenseViewDTO(Double price, Category category, Instant createdAt, Instant updatedAt) {
         this.price = price;
         this.category = category;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+    public ExpenseViewDTO() {
     }
 
     public Double getPrice() {
@@ -84,24 +60,5 @@ public class Expense {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Person getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Person owner) {
-        this.owner = owner;
-    }
-
-    @Override
-    public String toString() {
-        return "Expense{" +
-                "id=" + id +
-                ", price=" + price +
-                ", category=" + category +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
     }
 }
