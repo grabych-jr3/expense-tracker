@@ -1,7 +1,6 @@
 package com.ogidazepam.expense_tracker.util.security;
 
 import com.ogidazepam.expense_tracker.model.Expense;
-import com.ogidazepam.expense_tracker.model.Person;
 import com.ogidazepam.expense_tracker.model.UserRole;
 import com.ogidazepam.expense_tracker.repository.ExpenseRepository;
 import com.ogidazepam.expense_tracker.repository.PersonRepository;
@@ -24,8 +23,7 @@ public class EntitySecurity {
         this.currentUserService = currentUserService;
     }
 
-    public boolean isOwner(long id){
-
+    public boolean isOwnerOfExpense(long id){
         Expense expense = expenseRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
@@ -34,18 +32,10 @@ public class EntitySecurity {
     }
 
     public boolean isTargetUserAdmin(long id){
-        Person person = personRepository
-                .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
-
-        return person.getRole().equals(UserRole.ADMIN);
+        return personRepository.getRoleById(id) == UserRole.ADMIN;
     }
 
-    public boolean isTheSameUser(long id){
-        Person person = personRepository
-                .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
-
-        return currentUserService.getCurrentPerson().getId() == person.getId();
+    public boolean isTheSameUser(long targetId){
+        return currentUserService.getCurrentPerson().getId() == targetId;
     }
 }

@@ -1,5 +1,6 @@
 package com.ogidazepam.expense_tracker.service.jwt;
 
+import com.ogidazepam.expense_tracker.model.Person;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -23,9 +27,13 @@ public class JwtService {
         SECRET = secret;
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(Person person){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", person.getId());
+        claims.put("role", person.getRole().name());
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .claims(claims)
+                .subject(person.getUsername())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
                 .signWith(generateKey())
@@ -47,12 +55,16 @@ public class JwtService {
         return claims.getExpiration().after(Date.from(Instant.now()));
     }
 
+    public <T> T getClaim(String jwt, Function<Claims, T> claimsResolver){
+        Claims claims = getClaims(jwt);
+        return claimsResolver.apply(claims);
+    }
+
     private Claims getClaims(String jwt) {
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .verifyWith(generateKey())
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload();
-        return claims;
     }
 }

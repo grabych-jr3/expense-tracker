@@ -2,13 +2,18 @@ package com.ogidazepam.expense_tracker.controller;
 
 import com.ogidazepam.expense_tracker.dto.person.PersonLoginDTO;
 import com.ogidazepam.expense_tracker.dto.person.PersonRegisterDTO;
+import com.ogidazepam.expense_tracker.model.Person;
+import com.ogidazepam.expense_tracker.repository.PersonRepository;
 import com.ogidazepam.expense_tracker.service.PersonService;
 import com.ogidazepam.expense_tracker.service.jwt.JwtService;
+import com.ogidazepam.expense_tracker.service.security.MyUserDetailsService;
+import com.ogidazepam.expense_tracker.util.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +52,8 @@ public class AuthController {
         );
 
         if (authentication.isAuthenticated()){
-            return jwtService.generateToken((UserDetails) authentication.getPrincipal());
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            return jwtService.generateToken(userDetails.person());
         }else{
             throw new UsernameNotFoundException("Not today, bro");
         }

@@ -18,7 +18,6 @@ public class CustomAccessDeniedHanler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-
         EntityException entityException = new EntityException(
                 HttpStatus.FORBIDDEN,
                 "You don't have access rules",
