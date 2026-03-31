@@ -43,7 +43,7 @@ public class ExpenseService {
         expenseRepository.save(enrichExpense(expense));
     }
 
-    @PreAuthorize("@entitySecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwnerOfExpense(#id)")
     @Transactional
     public void updateExpense(long id, ExpenseUpdatingDTO dto) {
         Expense expense = expenseRepository
@@ -54,7 +54,7 @@ public class ExpenseService {
         expense.setUpdatedAt(Instant.now());
     }
 
-    @PreAuthorize("@entitySecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwnerOfExpense(#id)")
     @Transactional
     public void deleteExpense(long id){
         expenseRepository.deleteById(id);
@@ -89,7 +89,7 @@ public class ExpenseService {
         return convertToExpenseViewDTO(expenses);
     }
 
-    @PreAuthorize("@entitySecurity.isOwner(#id)")
+    @PreAuthorize("@entitySecurity.isOwnerOfExpense(#id)")
     public ExpenseViewDTO findExpense(long id){
         Expense expense = expenseRepository
                 .findById(id)

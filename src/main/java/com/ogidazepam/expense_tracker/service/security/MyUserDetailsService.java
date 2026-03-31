@@ -3,6 +3,7 @@ package com.ogidazepam.expense_tracker.service.security;
 import com.ogidazepam.expense_tracker.model.Person;
 import com.ogidazepam.expense_tracker.repository.PersonRepository;
 import com.ogidazepam.expense_tracker.util.exceptions.EntityNotFoundException;
+import com.ogidazepam.expense_tracker.util.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,10 +27,6 @@ public class MyUserDetailsService implements UserDetailsService {
                 .findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " is not found"));
 
-        return User.builder()
-                .username(person.getUsername())
-                .password(person.getPassword())
-                .roles(person.getRole().name())
-                .build();
+        return new CustomUserDetails(person);
     }
 }
